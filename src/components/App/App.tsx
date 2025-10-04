@@ -1,30 +1,29 @@
-// import { useState } from 'react'
 import SearchBar from '../SearchBar/SearchBar';
-import MovieGrid from '../MovieGrid/MovieGrid'
-import axios from 'axios';
-import type { Movie } from '../../types/movie';
+import MovieGrid from '../MovieGrid/MovieGrid';
+import Loader from '../Loader/Loader';
+import ErrorMessage from '../ErrorMessage/ErrorMessage'
+import MovieModal from '../MovieModal/MovieModal';
 import toast, { Toaster } from 'react-hot-toast';
-
+import type { Movie } from '../../types/movie';
 import css from './App.module.css';
 import { useState } from 'react';
-
-interface ResponseData {
-  results:  Movie[],
-}
+import { fetchMovies } from '../../services/movieService';
+import { useEffect } from 'react';
 
 function App() {
 
-  const [ movies, setMovies] = useState<Movie[]>([]);
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [chosenMovie, setChosenMovie] = useState<Movie | null>(null);
   
   const handleSearch = async (searchQuery: string) => {
     try {
-      const options = {
-  headers: {
-    Authorization: '',
-    accept: 'application/json',
-  }
-};
-      const {data: {results}} = await axios.get<ResponseData>(`https://api.themoviedb.org/3/search/movie?query=${searchQuery}`, options)
+      setMovies([]);
+      setIsError(false);
+      setIsLoading(true);
+      const results = await fetchMovies(searchQuery);
       setMovies(results);
       if (results.length === 0) {
        toast("No movies found for your request.", {
@@ -33,15 +32,40 @@ function App() {
       });
       return;
     };
-    } catch (error) {
-      console.log(error)
+    } catch {
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
     }
+  };
+  
+  const openModal = (oneMovie: Movie | null) => {
+    setChosenMovie(oneMovie);
+    setIsModalOpen(true)
    };
+  const closeModal = () => { setIsModalOpen(false) };
+  
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isModalOpen]);
+
+
   return (
     <div className={css.app}>
       <SearchBar onSubmit={handleSearch} />
-      <MovieGrid movies={movies} />
+      {movies.length > 0 && <MovieGrid movies={movies} onSelect={openModal} />}
       <Toaster />
+      {isLoading && <Loader />}
+      {isError && <ErrorMessage />}
+      {isModalOpen && <MovieModal onClose={closeModal} movie={chosenMovie} />}
     </div>
   )
 }
