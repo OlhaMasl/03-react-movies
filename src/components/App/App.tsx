@@ -42,7 +42,8 @@ function App() {
   const openModal = (oneMovie: Movie | null) => {
     setChosenMovie(oneMovie);
     setIsModalOpen(true)
-   };
+  };
+  
   const closeModal = () => { setIsModalOpen(false) };
   
   useEffect(() => {
@@ -57,7 +58,6 @@ function App() {
     };
   }, [isModalOpen]);
 
-
   return (
     <div className={css.app}>
       <SearchBar onSubmit={handleSearch} />
@@ -68,6 +68,6 @@ function App() {
       {isModalOpen && <MovieModal onClose={closeModal} movie={chosenMovie} />}
     </div>
   )
-}
+};
 
 export default App
