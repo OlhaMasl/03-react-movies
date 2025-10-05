@@ -39,12 +39,10 @@ function App() {
   
   const openModal = (oneMovie: Movie) => {
     setChosenMovie(oneMovie);
-    document.body.style.overflow = 'hidden';
   };
   
   const closeModal = () => {
     setChosenMovie(null);
-    document.body.style.overflow = '';
   };
 
   return (
