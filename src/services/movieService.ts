@@ -13,7 +13,7 @@ const options = {
   }
 };
 
-export const fetchMovies = async (query: string) => {
+export const fetchMovies = async (query: string): Promise<Movie[]> => {
     const { data: { results } } = await axios.get<ResponseData>(`https://api.themoviedb.org/3/search/movie?query=${query}`, options)
     return results;
 };

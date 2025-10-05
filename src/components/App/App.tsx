@@ -8,14 +8,12 @@ import type { Movie } from '../../types/movie';
 import css from './App.module.css';
 import { useState } from 'react';
 import { fetchMovies } from '../../services/movieService';
-import { useEffect } from 'react';
 
 function App() {
 
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [chosenMovie, setChosenMovie] = useState<Movie | null>(null);
   
   const handleSearch = async (searchQuery: string) => {
@@ -39,24 +37,15 @@ function App() {
     }
   };
   
-  const openModal = (oneMovie: Movie | null) => {
+  const openModal = (oneMovie: Movie) => {
     setChosenMovie(oneMovie);
-    setIsModalOpen(true)
+    document.body.style.overflow = 'hidden';
   };
   
-  const closeModal = () => { setIsModalOpen(false) };
-  
-  useEffect(() => {
-    if (isModalOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isModalOpen]);
+  const closeModal = () => {
+    setChosenMovie(null);
+    document.body.style.overflow = '';
+  };
 
   return (
     <div className={css.app}>
@@ -65,7 +54,7 @@ function App() {
       <Toaster />
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
-      {isModalOpen && <MovieModal onClose={closeModal} movie={chosenMovie} />}
+      {chosenMovie !== null && <MovieModal onClose={closeModal} movie={chosenMovie} />}
     </div>
   )
 };
